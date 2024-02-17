@@ -1,0 +1,90 @@
+#!/usr/bin/env python3
+
+import sys
+import json
+import argparse
+from pathlib import Path
+
+BOLD = "\033[1m"
+RESET = "\033[0m"
+BBLUE = "\033[48;5;56m"
+BRED = "\033[31;40m"
+WHITE = "\033[97m"
+CYAN = "\033[96m"
+GREEN = "\033[92m"
+RED = "\033[91m"
+BLUE = "\033[94m"
+CODE = "\033[38;5;187m"
+LOGO = "\033[38;5;92m"
+
+def hello():
+    logo = f"""{LOGO}
+  ▄████ ▄▄▄█████   █████▒ ▒█████  
+ ██▒ ▀█▒▓  ██▒ ▓ ▓██   ▒ ▒██▒  ██ 
+▒██░▄▄▄░▒ ▓██░ ▒ ▒████ ░ ▒██░  ██ 
+░▓█  ██▓░ ▓██▓ ░ ░▓█▒  ░ ▒██   ██ 
+░▒▓███▀▒  ▒██▒ ░ ░▒█░    ░ ████▓▒ 
+ ░▒   ▒   ▒ ░░    ▒ ░    ░ ▒░▒░▒░ 
+  ░   ░     ░     ░        ░ ▒ ▒░ 
+░ ░   ░   ░       ░ ░    ░ ░ ░ ▒  
+      ░                      ░ ░  
+
+## GTFOBins Offline Terminal with python
+{BLUE}
+GTFOBins:
+website: https://gtfobins.github.io
+repo: https://gtfobins.github.io{RESET}    
+    """
+    print(logo)
+
+def parse_args(parser):
+    parser.add_argument('-l', '--list', help='show all searchable items', action='store_true')
+    parser.add_argument('bin',nargs='*', help='serch items')
+    return parser.parse_args()
+    
+def print_privilege(query):
+    print(f" {BOLD}{BBLUE}{WHITE} {query} {RESET}\n")
+
+def print_description(query):
+    print(f" *** {BLUE}{query}{RESET}\n")
+
+def print_code(query):
+    print(f"{CODE}{query}{RESET}\n")
+
+def display_colored_json(data, indentation=0):
+    for key, value in data.items():
+        if key == "description":
+            print_description(value)
+        elif key == "code":
+            print_code(value)
+        elif isinstance(value, dict):
+            display_colored_json(value, indentation + 1)
+        elif isinstance(value, list):
+            print_privilege(key)
+            for item in value:
+                display_colored_json(item, indentation + 2)
+        else:
+            print(f"[{RED}+{RESET}] ?\n")
+
+if __name__ == '__main__':
+    hello()
+    parser = argparse.ArgumentParser(description='cli-gtfobins')
+    args = parse_args(parser)
+    json_file_path = Path("~/.config/gtfobins/gtfo.json").expanduser()
+    with open(json_file_path, 'r') as json_file:
+        json_data_dict = json.load(json_file)
+    if args.list:
+        for query in json_data_dict:
+            print(query)
+        sys.exit()
+    if args.bin:
+        for bin in list(set(args.bin)):
+            if bin in json_data_dict:
+                print(f"{BOLD}{BRED} {bin} {RESET}\n")
+                display_colored_json(json_data_dict[bin])
+            else:
+
+                print(f"{BOLD}{BRED} {bin} {RESET}\n")
+                print(f"{RED}No matching{RESET}\n")
+    else:
+        parser.error('[bin] argument is required')
