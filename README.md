@@ -1,7 +1,7 @@
 # cli-gtfobins
 GTFOBins Offline Terminal with python
 
-![cli-gtfo](/src/image/cli-gtfo.png)
+![cli-gtfo](img/cli-gtfo.png)
  
 ## Setup
 ```
